@@ -41,7 +41,7 @@ export const withAdminRoutes = async (fastify: FastifyInstance) => {
     const serverAdapter = new FastifyAdapter();
     serverAdapter.setBasePath(ADMIN_QUEUES_BASEPATH);
 
-    // Use type assertion to fix type compatibility issue
+    // Use type assertion to avoid type mismatch
     const queueAdapters = QUEUES.map((q) => new BullMQAdapter(q)) as any[];
 
     createBullBoard({

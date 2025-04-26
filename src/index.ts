@@ -16,38 +16,26 @@ import { SendWebhookQueue } from "./worker/queues/send-webhook-queue";
 
 const main = async () => {
   if (env.ENGINE_MODE === "server_only") {
-    initServer();
+    await initServer();
   } else if (env.ENGINE_MODE === "worker_only") {
-    initWorker();
+    await initWorker();
   } else {
-    initServer();
-    initWorker();
+    await initServer();
+    await initWorker();
   }
 };
 
-main();
-
-// Adding handlers for `uncaughtException` & `unhandledRejection`
-// Needs to be root level of your application to ensure it
-// catches any unhandledRejections or uncaughtException that occur throughout
-// entire codebase
+main().catch((err) => {
+  console.error("Failed to start server/worker:", err);
+  process.exit(1);
+});
 
 process.on("uncaughtException", (err) => {
-  logger({
-    message: "Uncaught Exception",
-    service: "server",
-    level: "error",
-    error: err,
-  });
+  logger({ message: "Uncaught Exception", service: "server", level: "error", error: err });
 });
 
 process.on("unhandledRejection", (err) => {
-  logger({
-    message: "Unhandled Rejection",
-    service: "server",
-    level: "error",
-    error: err,
-  });
+  logger({ message: "Unhandled Rejection", service: "server", level: "error", error: err });
 });
 
 process.on("SIGINT", () => gracefulShutdown("SIGINT"));
@@ -60,8 +48,7 @@ const gracefulShutdown = async (signal: NodeJS.Signals) => {
     message: `Received ${signal}, closing server...`,
   });
 
-  // Gracefully close workers to minimize stalled jobs.
-  // Source: https://docs.bullmq.io/guide/going-to-production#gracefully-shut-down-workers
+  // Close BullMQ queues
   await SendWebhookQueue.q.close();
   await ProcessEventsLogQueue.q.close();
   await ProcessTransactionReceiptsQueue.q.close();

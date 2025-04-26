@@ -3,6 +3,7 @@ import fastify, { type FastifyInstance } from "fastify";
 import * as fs from "node:fs";
 import path from "node:path";
 import { URL } from "node:url";
+
 import { clearCacheCron } from "../shared/utils/cron/clear-cache-cron";
 import { env } from "../shared/utils/env";
 import { logger } from "../shared/utils/logger";
@@ -22,10 +23,7 @@ import { withWebSocket } from "./middleware/websocket";
 import { withRoutes } from "./routes";
 import { writeOpenApiToFile } from "./utils/openapi";
 
-// The server timeout in milliseconds.
-// Source: https://fastify.dev/docs/latest/Reference/Server/#connectiontimeout
 const SERVER_CONNECTION_TIMEOUT = 60_000;
-
 const __dirname = new URL(".", import.meta.url).pathname;
 
 interface HttpsObject {
@@ -37,8 +35,9 @@ interface HttpsObject {
 }
 
 export const initServer = async () => {
-  // Enables the server to run on https://localhost:PORT, if ENABLE_HTTPS is provided.
-  let httpsObject: HttpsObject | undefined = undefined;
+  console.log("✅ Initializing Server...");
+
+  let httpsObject: HttpsObject | undefined;
   if (env.ENABLE_HTTPS) {
     httpsObject = {
       https: {
@@ -49,19 +48,8 @@ export const initServer = async () => {
     };
   }
 
-  // env.TRUST_PROXY is used to determine if the X-Forwarded-For header should be trusted.
-  // This option is force enabled for cloud-hosted Engines.
-  // See: https://fastify.dev/docs/latest/Reference/Server/#trustproxy
   const trustProxy = env.TRUST_PROXY || !!env.ENGINE_TIER;
-  if (trustProxy) {
-    logger({
-      service: "server",
-      level: "info",
-      message: "Server is enabled with trustProxy.",
-    });
-  }
 
-  // Start the server with middleware.
   const server: FastifyInstance = fastify({
     maxParamLength: 200,
     connectionTimeout: SERVER_CONNECTION_TIMEOUT,
@@ -70,7 +58,6 @@ export const initServer = async () => {
     ...(env.ENABLE_HTTPS ? httpsObject : {}),
   }).withTypeProvider<TypeBoxTypeProvider>();
 
-  // Configure middleware
   withErrorHandler(server);
   withRequestLogs(server);
   withSecurityHeaders(server);
@@ -80,32 +67,21 @@ export const initServer = async () => {
   withServerUsageReporting(server);
   withPrometheus(server);
 
-  // Register routes
   await withWebSocket(server);
   await withAuth(server);
   await withOpenApi(server);
   await withRoutes(server);
   await withAdminRoutes(server);
 
-  await server.ready();
+  console.log("✅ Fastify server ready, binding port...");
 
-  // if metrics are enabled, expose the metrics endpoint
-  if (env.METRICS_ENABLED) {
-    await metricsServer.ready();
-    metricsServer.listen({
-      host: env.HOST,
-      port: env.METRICS_PORT,
-    });
-  }
+  await server.ready();
 
   const PORT = parseInt(process.env.PORT || "3000", 10);
   const HOST = "0.0.0.0";
-  
+
   server.listen(
-    {
-      host: HOST,
-      port: PORT,
-    },
+    { host: HOST, port: PORT },
     (err) => {
       if (err) {
         logger({
@@ -116,25 +92,16 @@ export const initServer = async () => {
         });
         process.exit(1);
       }
-  
-      logger({
-        service: "server",
-        level: "info",
-        message: `✅ Server is listening on http://${HOST}:${PORT}`,
-      });
+      console.log(`✅ Server is listening on http://${HOST}:${PORT}`);
     }
   );
-  
-  const url = `${env.ENABLE_HTTPS ? "https://" : "http://"}0.0.0.0:${PORT}`;
-  
+
+  const publicUrl = `${env.ENABLE_HTTPS ? "https://" : "http://"}0.0.0.0:${PORT}`;
   logger({
     service: "server",
     level: "info",
-    message: `Engine server is listening on port ${PORT}. Add to your dashboard: https://thirdweb.com/dashboard/engine?importUrl=${encodeURIComponent(
-      url,
-    )}.`,
+    message: `Engine server running at: ${publicUrl}`,
   });
-  
 
   writeOpenApiToFile(server);
   await clearCacheCron();

@@ -24,7 +24,9 @@
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "yarn biome lint",
-    "copy-files": "cp -r ./prisma ./dist/"
+    "copy-files": "cp -r ./prisma ./dist/",
+    "prepare:push": "npm install && rm -rf dist && npm run build"
+
   },
   "dependencies": {
     "@aws-sdk/client-kms": "^3.679.0",

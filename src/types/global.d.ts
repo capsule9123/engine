@@ -41,4 +41,11 @@ declare module 'jsonwebtoken' {
 }
 
 declare module 'uuid';
+declare module 'ws' {
+  export class WebSocket {
+    on(event: string, listener: (...args: any[]) => void): this;
+    send(data: any, callback?: (err?: Error) => void): void;
+    close(code?: number, reason?: string): void;
+  }
+}
 declare module 'crypto-js'; 

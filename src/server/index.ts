@@ -98,26 +98,33 @@ export const initServer = async () => {
     });
   }
 
-  const PORT = Number(process.env.PORT) || 3000;
-  const HOST = '0.0.0.0'; // NOT localhost
+  const PORT = parseInt(process.env.PORT || "3000", 10);
+  const HOST = "0.0.0.0";
   
-  server.listen({ host: HOST, port: PORT }, (err) => {
-    if (err) {
+  server.listen(
+    {
+      host: HOST,
+      port: PORT,
+    },
+    (err) => {
+      if (err) {
+        logger({
+          service: "server",
+          level: "fatal",
+          message: "❌ Failed to start server",
+          error: err,
+        });
+        process.exit(1);
+      }
+  
       logger({
         service: "server",
-        level: "fatal",
-        message: "❌ Failed to start server",
-        error: err,
+        level: "info",
+        message: `✅ Server is listening on http://${HOST}:${PORT}`,
       });
-      process.exit(1);
     }
+  );
   
-    logger({
-      service: "server",
-      level: "info",
-      message: `✅ Server listening on http://${HOST}:${PORT}`,
-    });
-  });
   
   
 

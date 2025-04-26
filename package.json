@@ -24,7 +24,7 @@
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "yarn biome lint",
-    "copy-files": "cp -r ./src/prisma ./dist/"
+    "copy-files": "cp -r ./prisma ./dist/"
   },
   "dependencies": {
     "@aws-sdk/client-kms": "^3.679.0",
@@ -92,7 +92,7 @@
     "vitest": "^2.0.3"
   },
   "prisma": {
-    "schema": "./src/prisma/schema.prisma"
+    "schema": "prisma/schema.prisma"
   },
   "resolutions": {
     "@thirdweb-dev/auth/**/axios": ">=1.7.8",

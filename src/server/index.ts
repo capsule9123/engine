@@ -99,25 +99,26 @@ export const initServer = async () => {
   }
 
   const PORT = Number(process.env.PORT) || 3000;
-  const HOST = '0.0.0.0';
+  const HOST = '0.0.0.0'; // NOT localhost
   
-  server.listen(
-    {
-      host: HOST,
-      port: PORT,
-    },
-    (err) => {
-      if (err) {
-        logger({
-          service: "server",
-          level: "fatal",
-          message: "Failed to start server",
-          error: err,
-        });
-        process.exit(1);
-      }
-    },
-  );
+  server.listen({ host: HOST, port: PORT }, (err) => {
+    if (err) {
+      logger({
+        service: "server",
+        level: "fatal",
+        message: "❌ Failed to start server",
+        error: err,
+      });
+      process.exit(1);
+    }
+  
+    logger({
+      service: "server",
+      level: "info",
+      message: `✅ Server listening on http://${HOST}:${PORT}`,
+    });
+  });
+  
   
 
   const url = `${env.ENABLE_HTTPS ? "https://" : "http://"}localhost:${

@@ -98,10 +98,13 @@ export const initServer = async () => {
     });
   }
 
+  const PORT = Number(process.env.PORT) || 3000;
+  const HOST = '0.0.0.0';
+  
   server.listen(
     {
-      host: env.HOST,
-      port: env.PORT,
+      host: HOST,
+      port: PORT,
     },
     (err) => {
       if (err) {
@@ -115,6 +118,7 @@ export const initServer = async () => {
       }
     },
   );
+  
 
   const url = `${env.ENABLE_HTTPS ? "https://" : "http://"}localhost:${
     env.PORT

@@ -125,22 +125,16 @@ export const initServer = async () => {
     }
   );
   
+  const url = `${env.ENABLE_HTTPS ? "https://" : "http://"}0.0.0.0:${PORT}`;
   
-  
-
-  const url = `${env.ENABLE_HTTPS ? "https://" : "http://"}localhost:${
-    env.PORT
-  }`;
-
   logger({
     service: "server",
     level: "info",
-    message: `Engine server is listening on port ${
-      env.PORT
-    }. Add to your dashboard: https://thirdweb.com/dashboard/engine?importUrl=${encodeURIComponent(
+    message: `Engine server is listening on port ${PORT}. Add to your dashboard: https://thirdweb.com/dashboard/engine?importUrl=${encodeURIComponent(
       url,
     )}.`,
   });
+  
 
   writeOpenApiToFile(server);
   await clearCacheCron();

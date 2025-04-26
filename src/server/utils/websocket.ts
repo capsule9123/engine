@@ -13,7 +13,9 @@ export const findWSConnectionInSharedState = async (
   _request: FastifyRequest,
 ): Promise<number> => {
   const index = subscriptionsData.findIndex(
-    (sub) => sub.socket === connection.socket,
+    (sub) => {
+      return sub.socket === (connection.socket as any);
+    }
   );
   return index;
 };
@@ -118,7 +120,7 @@ export const findOrAddWSConnectionInSharedState = async (
     return subscriptionsData[index];
   } else {
     const userSubscription: UserSubscription = {
-      socket: connection.socket,
+      socket: connection.socket as any,
       requestId: queueId,
     };
 

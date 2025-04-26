@@ -255,7 +255,7 @@ export const toTransactionSchema = (
   const resolveTransactionHash = (): string | null => {
     switch (transaction.status) {
       case "sent":
-        if (!transaction.isUserOp) {
+        if (!transaction.isUserOp && 'sentTransactionHashes' in transaction) {
           return transaction.sentTransactionHashes.at(-1) ?? null;
         }
         break;

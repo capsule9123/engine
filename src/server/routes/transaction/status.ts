@@ -114,7 +114,12 @@ export async function checkTxStatus(fastify: FastifyInstance) {
         return;
       }
 
-      connection.socket.on("error", (error: Error) => {
+      // Use type assertion to make TypeScript happy
+      const socket = connection.socket as unknown as { 
+        on(event: string, listener: (...args: any[]) => void): void 
+      };
+
+      socket.on("error", (error: Error) => {
         logger({
           service: "websocket",
           level: "error",
@@ -125,11 +130,11 @@ export async function checkTxStatus(fastify: FastifyInstance) {
         onError(error, connection, request);
       });
 
-      connection.socket.on("message", async (_message: Buffer | string, _isBinary: boolean) => {
+      socket.on("message", async (_message: Buffer | string, _isBinary: boolean) => {
         onMessage(connection, request);
       });
 
-      connection.socket.on("close", () => {
+      socket.on("close", () => {
         onClose(connection, request);
       });
     },

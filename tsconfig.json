@@ -10,7 +10,8 @@
     "emitDecoratorMetadata": true,
     "skipLibCheck": true,
     "allowJs": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "ts-node": {
     "esm": true,
@@ -23,7 +24,8 @@
     "src/utils/env.ts",
     "src/**/*.ts",
     "src/**/*.js",
-    "src/**/*.d.ts"
+    "src/**/*.d.ts",
+    "src/types/**/*.d.ts"
   ],
   "exclude": ["node_modules", "tests/tests/**/*.ts"]
 }

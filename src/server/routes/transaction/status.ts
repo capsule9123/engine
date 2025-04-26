@@ -114,7 +114,7 @@ export async function checkTxStatus(fastify: FastifyInstance) {
         return;
       }
 
-      connection.socket.on("error", (error) => {
+      connection.socket.on("error", (error: Error) => {
         logger({
           service: "websocket",
           level: "error",
@@ -125,7 +125,7 @@ export async function checkTxStatus(fastify: FastifyInstance) {
         onError(error, connection, request);
       });
 
-      connection.socket.on("message", async (_message, _isBinary) => {
+      connection.socket.on("message", async (_message: Buffer | string, _isBinary: boolean) => {
         onMessage(connection, request);
       });
 

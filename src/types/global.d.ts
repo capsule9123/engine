@@ -11,6 +11,17 @@ declare module 'jsonwebtoken' {
     jti?: string;
   }
   
+  export interface DecodedToken {
+    header: {
+      alg: string;
+      typ?: string;
+      kid?: string;
+      [key: string]: any;
+    };
+    payload: JwtPayload;
+    signature: string;
+  }
+  
   export type Algorithm = 
     | 'HS256' | 'HS384' | 'HS512'
     | 'RS256' | 'RS384' | 'RS512'
@@ -23,16 +34,11 @@ declare module 'jsonwebtoken' {
     constructor(message: string, expiredAt: Date);
   }
   
-  export function decode(token: string, options?: { complete?: boolean; json?: boolean }): null | { [key: string]: any } | string;
+  export function decode(token: string, options?: { complete: true }): DecodedToken | null;
+  export function decode(token: string, options?: { complete?: false }): JwtPayload | null;
+  export function decode(token: string, options?: { complete?: boolean }): JwtPayload | DecodedToken | null;
   export function verify(token: string, secretOrPublicKey: string, options?: any): JwtPayload;
 }
 
 declare module 'uuid';
-declare module 'ws' {
-  export class WebSocket {
-    on(event: string, listener: (...args: any[]) => void): this;
-    send(data: any, callback?: (err?: Error) => void): void;
-    close(code?: number, reason?: string): void;
-  }
-}
 declare module 'crypto-js'; 
